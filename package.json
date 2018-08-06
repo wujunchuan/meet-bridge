@@ -71,7 +71,7 @@
         "statements": 75
       }
     },
-    "collectCoverage": true
+    "collectCoverage": false
   },
   "prettier": {
     "semi": false,
