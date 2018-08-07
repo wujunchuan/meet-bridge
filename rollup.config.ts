@@ -9,7 +9,7 @@ import { terser } from "rollup-plugin-terser";
 import builtins from 'rollup-plugin-node-builtins';
 
 const pkg = require('./package.json')
-const libraryName = 'meet-eos'
+const libraryName = 'meet-bridge'
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default {
@@ -37,7 +37,7 @@ export default {
     {
       file: pkg.iife,
       name: camelCase(libraryName),
-      globals: 'eosjs',
+      globals: 'Bridge',
       format: 'iife',
       sourcemap: true
     },
