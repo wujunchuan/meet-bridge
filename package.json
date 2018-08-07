@@ -67,11 +67,11 @@
       "global": {
         "branches": 70,
         "functions": 75,
-        "lines": 75,
+        "lines": 35,
         "statements": 75
       }
     },
-    "collectCoverage": false
+    "collectCoverage": true
   },
   "prettier": {
     "semi": false,
