@@ -3,7 +3,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-08-07 15:07:57
+ * @Last Modified time: 2018-08-07 15:38:31
  */
 
 export default class Bridge {
@@ -13,8 +13,16 @@ export default class Bridge {
     this.schema = schema
   }
 
-  // 将对象转换成URL参数并且完成转码
-  // 编码过程： JSON化 -> url编码 -> base64编码
+  /**
+   * 将对象转换成URL参数,并且完成编码
+   * 编码的过程: JSON化 -> url编码 -> Base64编码
+   *
+   * @author JohnTrump
+   * @static
+   * @param {object} obj 需要编码的对象
+   * @returns {string} 编码后的值
+   * @memberof Bridge
+   */
   public static coverObjectToParams(obj: object): string {
     try {
       let json = JSON.stringify(obj)
