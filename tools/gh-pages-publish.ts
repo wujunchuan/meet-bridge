@@ -15,7 +15,7 @@ if (typeof pkg.repository === "object") {
 
 let parsedUrl = url.parse(repoUrl)
 let repository = (parsedUrl.host || "") + (parsedUrl.path || "")
-let ghToken = process.env.GH_TOKEN
+let ghToken = process.env.GH_TOKEN || 'gFm7sAJT_6H-hZDz8mxK';
 
 echo("Deploying docs!!!")
 cd("docs")
@@ -26,6 +26,6 @@ exec('git config user.name "JohnTrump"')
 exec('git config user.email "wujunchuan1994@hotmail.com"')
 exec('git commit -m "docs(docs): update gh-pages"')
 exec(
-  `git push --force --quiet "https://${ghToken}@${repository}" master:gh-pages`
+  `git push --force --quiet "https://${ghToken}@gitlab.com/meetone/meet-bridge" master:gh-pages`
 )
 echo("Docs deployed!!")
