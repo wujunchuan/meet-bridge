@@ -4,6 +4,8 @@
 
 本库用于辅助生成客户端的协议URI,封装了一些常见的协议与方法
 
+[文档地址](https://meetone.gitlab.io/meet-bridge/)
+
 ## 使用方法
 
 1. web -> 客户端

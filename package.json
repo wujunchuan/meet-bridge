@@ -13,7 +13,7 @@
   "author": "JohnTrump <wujunchuan1994@hotmail.com>",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://gitlab.com/meetone/meet-bridge"
   },
   "license": "MIT",
   "engines": {
