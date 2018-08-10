@@ -144,7 +144,7 @@ export default class Bridge {
 
   /**
    *
-   * 调用转账页面
+   * 调用手机端的转账页面
    *
    * @param to 转账给谁
    * @param amount 转账金额
