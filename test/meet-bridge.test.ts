@@ -134,4 +134,15 @@ describe('测试SDK', () => {
     const url = bridge.invokeAccountInfo({})
     expect(url).toEqual(expect.stringMatching('eos/account_info'))
   })
+
+  it('唤起转账页面', () => {
+    const config = {
+      to: 'wujunchuan12'
+    }
+    const url = bridge.invokeTransferPage(config)
+    const urlObj = Bridge.parseURL(url)
+    const paramsObj = urlObj.params
+    expect(url).toEqual(expect.stringMatching('eos/transfer_page'))
+    expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
+  })
 })

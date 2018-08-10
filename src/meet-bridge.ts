@@ -144,6 +144,43 @@ export default class Bridge {
 
   /**
    *
+   * 调用转账页面
+   *
+   * @param to 转账给谁
+   * @param amount 转账金额
+   * @param tokenName 代币符号
+   * @param tokenContract 代币合约地址
+   * @param tokenPrecision 代币精度
+   * @param memo 转账备注
+   * @param callbackId 回调id
+   * @returns {string} 处理过的URI
+   * @memberof Bridge
+   */
+  public invokeTransferPage({
+    to = '',
+    amount = 0,
+    tokenName = 'EOS',
+    tokenContract = 'eosio.token',
+    tokenPrecision = 4,
+    memo = '',
+    callbackId = ''
+  }): string {
+    return this.generateURI({
+      routeName: 'eos/transfer_page',
+      params: {
+        to,
+        amount,
+        tokenName,
+        tokenContract,
+        tokenPrecision,
+        memo
+      } as any,
+      callbackId
+    })
+  }
+
+  /**
+   *
    * 发起转账请求
    *
    * @param to 转账给谁
