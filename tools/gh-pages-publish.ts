@@ -1,4 +1,4 @@
-const { cd, exec, echo, touch } = require("shelljs")
+const { cd, exec, echo, touch, cp } = require("shelljs")
 const { readFileSync } = require("fs")
 const url = require("url")
 
@@ -19,6 +19,7 @@ let ghToken = process.env.GH_TOKEN || 'gFm7sAJT_6H-hZDz8mxK';
 
 echo("Deploying docs!!!")
 cd("docs")
+cp('../.gitlab-ci.yml', '.gitlab-ci.yml')
 touch(".nojekyll")
 exec("git init")
 exec("git add .")
