@@ -272,7 +272,7 @@ export default class Bridge {
       params: {
         target,
         options
-      },
+      } as any,
       callbackId
     })
   }
