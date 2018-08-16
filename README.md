@@ -1,5 +1,8 @@
 # MEET客户端桥接库
 
+[![npm version](https://badge.fury.io/js/meet-bridge.svg)](https://badge.fury.io/js/meet-bridge)
+[![js deliver](https://data.jsdelivr.com/v1/package/npm/meet-bridge/badge)](https://www.jsdelivr.com/package/npm/meet-bridge)
+
 ## 介绍
 
 本库用于辅助生成客户端的协议URI,封装了一些常见的协议与方法
