@@ -1,3 +1,5 @@
+import { defaultCipherList } from 'constants'
+
 /*
  * MEET桥接
  * @Author: JohnTrump
@@ -128,15 +130,15 @@ export default class Bridge {
   }
 
   /**
-   * 请求授权
+   * 请求授权 - 跳转到授权页面
    *
    * @param callbackId 回调id
    * @returns {string} 处理过的URI
    * @memberof Bridge
    */
-  public invokeAuthorizeWeb({ callbackId = '' }): string {
+  public invokeAuthorize({ callbackId = '' }): string {
     return this.generateURI({
-      routeName: 'eos/authorizeInWeb',
+      routeName: 'eos/authorize',
       params: {},
       callbackId
     })
@@ -254,6 +256,23 @@ export default class Bridge {
     return this.generateURI({
       routeName: 'eos/account_info',
       params: {},
+      callbackId
+    })
+  }
+
+  /**
+   * @param target 跳转的目标
+   * @param callbackId 回调id
+   * @returns {string}
+   * @memberof Bridge
+   */
+  public invokeNavigate({ callbackId = '', target = '', options = {} }): string {
+    return this.generateURI({
+      routeName: 'app/navigate',
+      params: {
+        target,
+        options
+      },
       callbackId
     })
   }

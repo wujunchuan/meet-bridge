@@ -77,10 +77,10 @@ describe('测试ParseURL', () => {
 describe('测试SDK', () => {
   const bridge = new Bridge()
   it('请求获取授权', () => {
-    const url = bridge.invokeAuthorizeWeb({ callbackId: '100' })
+    const url = bridge.invokeAuthorize({ callbackId: '100' })
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
-    expect(url).toEqual(expect.stringMatching('eos/authorizeInWeb'))
+    expect(url).toEqual(expect.stringMatching('eos/authorize'))
     expect(Bridge.revertParamsToObject(paramsObj.params)).toEqual({})
   })
 
@@ -143,6 +143,18 @@ describe('测试SDK', () => {
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('eos/transfer_page'))
+    expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
+  })
+
+  it('协议跳转', () => {
+    const config = {
+      target: 'CandyPage'
+    }
+    const url = bridge.invokeNavigate(config)
+    const urlObj = Bridge.parseURL(url)
+    const paramsObj = urlObj.params
+    expect(url).toEqual(expect.stringMatching('app/navigate'))
+    console.log(url)
     expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
   })
 })
