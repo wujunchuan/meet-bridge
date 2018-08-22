@@ -76,11 +76,26 @@ describe('测试ParseURL', () => {
 
 describe('测试SDK', () => {
   const bridge = new Bridge()
-  it('请求获取授权', () => {
+
+  it('请求获取授权(跳转到授权页面)', () => {
     const url = bridge.invokeAuthorize({ callbackId: '100' })
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('eos/authorize'))
+    expect(Bridge.revertParamsToObject(paramsObj.params)).toEqual({
+      dappIcon: null,
+      dappName: null,
+      loginMemo: null,
+      schema: null,
+      redirectURL: null
+    })
+  })
+
+  it('请求获取授权(直接返回授权信息)', () => {
+    const url = bridge.invokeAuthorizeInWeb({ callbackId: '100' })
+    const urlObj = Bridge.parseURL(url)
+    const paramsObj = urlObj.params
+    expect(url).toEqual(expect.stringMatching('eos/authorizeInWeb'))
     expect(Bridge.revertParamsToObject(paramsObj.params)).toEqual({})
   })
 
@@ -154,7 +169,6 @@ describe('测试SDK', () => {
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('app/navigate'))
-    console.log(url)
     expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
   })
 })

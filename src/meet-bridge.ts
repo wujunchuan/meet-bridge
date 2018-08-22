@@ -1,5 +1,3 @@
-import { defaultCipherList } from 'constants'
-
 /*
  * MEET桥接
  * @Author: JohnTrump
@@ -12,27 +10,26 @@ export default class Bridge {
   /**
    * 指定协议头,默认为meetone://
    * @type {string}
-   * @memberof Bridge
    */
   schema: string
 
   /**
+   *
    * Creates an instance of Bridge.
    * @param {string} [schema='meetone://']
-   * @memberof Bridge
    */
   constructor(schema: string = 'meetone://') {
     this.schema = schema
   }
 
   /**
+   *
    * 将对象转换成URL参数,并且完成编码
    *
    * 编码的过程: JSON化 -> url编码 -> Base64编码
    * @static
    * @param {object} obj 需要编码的对象
    * @returns {string} 经过系列编码后的值
-   * @memberof Bridge
    */
   public static coverObjectToParams(obj: object): string {
     try {
@@ -45,6 +42,7 @@ export default class Bridge {
   }
 
   /**
+   *
    * 将URL参数解码并且转换成对象
    *
    * 解码过程： base64解码 -> url解码 -> JSON化
@@ -52,7 +50,6 @@ export default class Bridge {
    * @static
    * @param {string} url 需要解码的URL
    * @returns {object} URL中Query部分的params字段所代表的对象
-   * @memberof Bridge
    */
   public static revertParamsToObject(url: string): object {
     try {
@@ -72,7 +69,6 @@ export default class Bridge {
    * @static
    * @param {string} url 需要解析的URL
    * @returns {object} 解析出的对象
-   * @memberof Bridge
    */
   public static parseURL(url: string): object {
     let a = document.createElement('a')
@@ -115,11 +111,10 @@ export default class Bridge {
    *
    * 2. window.postMessage(uri) (内部Webview调用)
    *
-   * @param routeName 路由名称
-   * @param params 查询的参数
-   * @param callbackId 回调Id
-   * @returns {string}
-   * @memberof Bridge
+   * @param routeName - 路由名称
+   * @param params - 查询的参数
+   * @param callbackId - 回调Id
+   * @returns {string} - 协议的URI地址
    */
   public generateURI({ routeName = '', params = {}, callbackId = '' }): string {
     return this.schema
@@ -132,13 +127,44 @@ export default class Bridge {
   /**
    * 请求授权 - 跳转到授权页面
    *
-   * @param callbackId 回调id
-   * @returns {string} 处理过的URI
-   * @memberof Bridge
+   * @param schema 回调的协议schema
+   * @param redirectURL 回调的协议不存在时跳转的URL
+   * @param dappIcon 申请授权的应用图标链接
+   * @param dappName 申请授权的应用名称
+   * @param loginMemo 申请授权的应用描述
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
    */
-  public invokeAuthorize({ callbackId = '' }): string {
+  public invokeAuthorize({
+    schema = null,
+    redirectURL = null,
+    dappIcon = null,
+    dappName = null,
+    loginMemo = null,
+    callbackId = ''
+  }): string {
     return this.generateURI({
       routeName: 'eos/authorize',
+      params: {
+        dappIcon,
+        dappName,
+        loginMemo,
+        schema,
+        redirectURL
+      } as any,
+      callbackId
+    })
+  }
+
+  /**
+   * 请求授权 - 直接返回授权信息
+   *
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
+   */
+  public invokeAuthorizeInWeb({ callbackId = '' }): string {
+    return this.generateURI({
+      routeName: 'eos/authorizeInWeb',
       params: {},
       callbackId
     })
@@ -154,9 +180,8 @@ export default class Bridge {
    * @param tokenContract 代币合约地址
    * @param tokenPrecision 代币精度
    * @param memo 转账备注
-   * @param callbackId 回调id
-   * @returns {string} 处理过的URI
-   * @memberof Bridge
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
    */
   public invokeTransferPage({
     to = '',
@@ -192,9 +217,8 @@ export default class Bridge {
    * @param tokenPrecision 代币精度
    * @param memo 转账备注
    * @param orderInfo 订单信息
-   * @param callbackId 回调id
-   * @returns {string} 处理过的URI
-   * @memberof Bridge
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
    */
   public invokeTransfer({
     to = '',
@@ -226,9 +250,8 @@ export default class Bridge {
    *
    * @param actions 事务Actions
    * @param options 事务Options
-   * @param callbackId 回调id
-   * @returns {string} 处理过的URI
-   * @memberof Bridge
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
    */
   public invokeTransaction({
     actions = [],
@@ -248,9 +271,8 @@ export default class Bridge {
   /**
    * 获取帐号信息
    *
-   * @param callbackId 回调id
-   * @returns {string}
-   * @memberof Bridge
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
    */
   public invokeAccountInfo({ callbackId = '' }): string {
     return this.generateURI({
@@ -262,9 +284,8 @@ export default class Bridge {
 
   /**
    * @param target 跳转的目标
-   * @param callbackId 回调id
-   * @returns {string}
-   * @memberof Bridge
+   * @param callbackId 回调id (选填)
+   * @returns {string} - 协议的URI地址
    */
   public invokeNavigate({ callbackId = '', target = '', options = {} }): string {
     return this.generateURI({

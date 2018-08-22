@@ -7,9 +7,22 @@
 
 本库用于辅助生成客户端的协议URI,封装了一些常见的协议与方法
 
-[文档地址](https://meetone.gitlab.io/meet-bridge/)
+[API文档地址](https://meetone.gitlab.io/meet-bridge/)
 
-## 使用方法
+[在线Demo](https://meet.one/test/index.html)
+
+## 生成协议URI的方法
+
+> 下面以生成 **获取帐号信息** 的协议URI为例
+
+```js
+  var bridge = new Bridge(); // 1. 生成Bridge实例对象
+  var uri = bridge.invokeAccountInfo({callbackId: 'demo'}); // 生成获取帐号信息协议
+  window.location.href = uri; // 外部Web调用
+  window.postMessage(uri); // 内部Webview调用
+```
+
+## 生成协议URI后的使用方法
 
 1. web -> 客户端
 
