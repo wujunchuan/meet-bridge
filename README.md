@@ -1,50 +1,50 @@
-# MEET客户端桥接库
+# meet-bridge
 
 [![npm version](https://badge.fury.io/js/meet-bridge.svg)](https://badge.fury.io/js/meet-bridge)
 [![js deliver](https://data.jsdelivr.com/v1/package/npm/meet-bridge/badge)](https://www.jsdelivr.com/package/npm/meet-bridge)
 
-## 介绍
+## Introduction
 
-本库用于辅助生成客户端的协议URI,封装了一些常见的协议与方法
+The Bridge Library for Meet.ONE Client
 
-[API文档地址](https://meetone.gitlab.io/meet-bridge/)
+This library is used to assist to generating the protocol URI of the client, and encapsulates some common protocols and methods.
 
-[在线Demo](https://meet.one/test/index.html)
+[API Docs](https://meetone.gitlab.io/meet-bridge/)
 
-## 生成协议URI的方法
+[Live Demo](https://meet.one/test/index.html)
 
-> 下面以生成 **获取帐号信息** 的协议URI为例
+## How to generate protocol uri
+
+The following is an example of how to generate protocol uri to ask for authorize
 
 ```js
-  var bridge = new Bridge(); // 1. 生成Bridge实例对象
-  var uri = bridge.invokeAccountInfo({callbackId: 'demo'}); // 生成获取帐号信息协议
-  window.location.href = uri; // 外部Web调用
-  window.postMessage(uri); // 内部Webview调用
+var bridge = new Bridge(); // 1. Creates an instance of Bridge.
+
+// 2. generate autorize protocol uri
+var uri = bridge.invokeAuthorize({
+  schema: 'moreone', // the callback of protocol schema
+  redirectURL: 'http://more.one', // When callback failed (eg.protocol doesn't response) will redirect to URL(common like dapps' homepage)
+  dappName: 'MORE.ONE', // Dapps' name
+  dappIcon: 'https://static.ethte.com/more/images/icon/icon60pt.png', // Dapps' icon URL
+  loginMemo: 'The EOS Candy Box'
+});
+
+// 3. After the protocol URI address is generated, the web terminal can communicate with the client through the following two calling methods.
+window.location.href = uri;
+window.postMessage(uri);
 ```
 
-## 生成协议URI后的使用方法
+## How to receive message from client
 
-1. web -> 客户端
+Receiving and parsing the things returned by the client can be achieved by listening to the `Message` event.
 
-    生成协议URI地址后，Web端可以通过下面两种调用方式与客户端进行通讯
+```js
+window.document.addEventListener('message', function(e) {
+  const message = e.data; // receive original message
+  document.getElementById('receive').innerHTML = messgae;
 
-    - `window.location.href = uri` 外部Web调用
-
-    - `window.postMessage(uri)` 内部webview调用
-
-2. 客户端 -> web
-
-    接收与解析客户端返回的东西，可以通过监听`Message`事件来实现
-
-    - 原生js代码如下
-      ```js
-      window.document.addEventListener('message', function(e) {
-        const message = e.data;
-        // 接收到的原始数据
-        document.getElementById('receive').innerHTML = messgae;
-        const {params} = JSON.parse(message);
-        // 解码后的数据
-        // 可以使用 `Bridge.revertParamsToObject(params)` 直接转换成Object对象;
-        document.getElementById('decode').innerHTML = decodeURIComponent(atob(params));
-      });
-      ```
+  // can also be directly converted to an Object using `Bridge.revertParamsToObject(params)`;
+  const {params} = JSON.parse(message);
+  document.getElementById('decode').innerHTML = decodeURIComponent(atob(params));
+});
+```

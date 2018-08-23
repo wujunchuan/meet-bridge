@@ -1,5 +1,6 @@
 /*
- * MEET桥接
+ * The Bridge Library for Meet.ONE Client
+ * This library is used to assist in generating the protocol URI of the client, and encapsulates some common protocols and methods.
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
@@ -8,28 +9,25 @@
 
 export default class Bridge {
   /**
-   * 指定协议头,默认为meetone://
-   * @type {string}
+   * Designated protocol schema, default `meetone://`
+   * @type {string} protocol schema
    */
   schema: string
 
   /**
-   *
    * Creates an instance of Bridge.
-   * @param {string} [schema='meetone://']
+   * @param {string} [protocol='meetone://']
    */
   constructor(schema: string = 'meetone://') {
     this.schema = schema
   }
 
   /**
-   *
-   * 将对象转换成URL参数,并且完成编码
-   *
-   * 编码的过程: JSON化 -> url编码 -> Base64编码
+   * Parse Javascript Object to params String
+   * Detailed conversion process: JSON.stringify() -> encodeURIComponent() -> btoa()
    * @static
-   * @param {object} obj 需要编码的对象
-   * @returns {string} 经过系列编码后的值
+   * @param {object} obj - target Javascript Object
+   * @returns {string} - params String
    */
   public static coverObjectToParams(obj: object): string {
     try {
@@ -42,14 +40,12 @@ export default class Bridge {
   }
 
   /**
+   * Parse params String to Javascript Object
    *
-   * 将URL参数解码并且转换成对象
-   *
-   * 解码过程： base64解码 -> url解码 -> JSON化
-   *
+   * Detailed conversion process: atob() -> decodeURIComponent() -> JSON.parse()
    * @static
-   * @param {string} url 需要解码的URL
-   * @returns {object} URL中Query部分的params字段所代表的对象
+   * @param {string} url - params String
+   * @returns {object} - Javascript Object
    */
   public static revertParamsToObject(url: string): object {
     try {
@@ -64,11 +60,10 @@ export default class Bridge {
   }
 
   /**
-   * 解析URL
-   *
+   * Parse URL String to Object
    * @static
-   * @param {string} url 需要解析的URL
-   * @returns {object} 解析出的对象
+   * @param {string} url - URL
+   * @returns {object} - URL Object
    */
   public static parseURL(url: string): object {
     let a = document.createElement('a')
@@ -103,18 +98,18 @@ export default class Bridge {
   }
 
   /**
-   * 生成协议URI地址
+   * Generate the protocol URI
    *
-   * Web端可以通过下面两种调用方式与客户端进行通讯桥接
+   * The web side can communicate with the client through the following two calling methods.
    *
-   * 1. window.location.href = uri (外部web调用)
+   * 1. window.location.href = uri (outside web calling - out of application client)
    *
-   * 2. window.postMessage(uri) (内部Webview调用)
+   * 2. window.postMessage(uri) (inside Webview calling - in application client)
    *
-   * @param routeName - 路由名称
-   * @param params - 查询的参数
-   * @param callbackId - 回调Id
-   * @returns {string} - 协议的URI地址
+   * @param routeName - the path for protocol uri, eg: 'eos/authorize'
+   * @param params - the query of params
+   * @param callbackId - callback id
+   * @returns {string} - The protocol of uri
    */
   public generateURI({ routeName = '', params = {}, callbackId = '' }): string {
     return this.schema
@@ -125,15 +120,15 @@ export default class Bridge {
   }
 
   /**
-   * 请求授权 - 跳转到授权页面
+   * Request authorization - Jump to the authorization page
    *
-   * @param schema 回调的协议schema
-   * @param redirectURL 回调的协议不存在时跳转的URL
-   * @param dappIcon 申请授权的应用图标链接
-   * @param dappName 申请授权的应用名称
-   * @param loginMemo 申请授权的应用描述
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
+   * @param schema - the callback of protocol schema
+   * @param redirectURL - When callback failed (eg.protocol doesn't response) will redirect to URL(common like dapps' homepage)
+   * @param dappIcon - Dapps' icon URL
+   * @param dappName - Dapps' name
+   * @param loginMemo - Dapps' Authorization description
+   * @param callbackId - callback id
+   * @returns {string} - The protocol of uri
    */
   public invokeAuthorize({
     schema = null,
@@ -157,10 +152,10 @@ export default class Bridge {
   }
 
   /**
-   * 请求授权 - 直接返回授权信息
+   * Request authorization - return authorization information directly
    *
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
+   * @param callbackId - callback id
+   * @returns {string} - The protocol of uri
    */
   public invokeAuthorizeInWeb({ callbackId = '' }): string {
     return this.generateURI({
@@ -172,7 +167,7 @@ export default class Bridge {
 
   /**
    *
-   * 调用手机端的转账页面
+   * Open The Transfer Page
    *
    * @param to 转账给谁
    * @param amount 转账金额
@@ -208,7 +203,7 @@ export default class Bridge {
 
   /**
    *
-   * 发起转账请求
+   * Send a transfer request
    *
    * @param to 转账给谁
    * @param amount 转账金额
@@ -246,12 +241,15 @@ export default class Bridge {
   }
 
   /**
-   * 发起事务请求
    *
-   * @param actions 事务Actions
-   * @param options 事务Options
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
+   * Send a transaction request
+   *
+   * ref: https://github.com/EOSIO/eosjs#transaction
+   *
+   * @param actions transaction Actions
+   * @param options transaction Options
+   * @param callbackId callbackid
+   * @returns {string} - protocol uri
    */
   public invokeTransaction({
     actions = [],
@@ -269,10 +267,10 @@ export default class Bridge {
   }
 
   /**
-   * 获取帐号信息
+   * Get account information
    *
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
+   * @param callbackId callbackid
+   * @returns {string} - protocol uri
    */
   public invokeAccountInfo({ callbackId = '' }): string {
     return this.generateURI({
@@ -283,9 +281,13 @@ export default class Bridge {
   }
 
   /**
-   * @param target 跳转的目标
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
+   *
+   * invoke application to Navigate
+   *
+   * @param target - Navigate to route name, eg 'EOSAuthorationPage'
+   * @param options - Parameters that need to passed to the route component
+   * @param callbackId callback id
+   * @returns {string} - protocol uri
    */
   public invokeNavigate({ callbackId = '', target = '', options = {} }): string {
     return this.generateURI({
