@@ -22,7 +22,7 @@ var bridge = new Bridge(); // 1. Creates an instance of Bridge.
 
 // 2. generate autorize protocol uri
 var uri = bridge.invokeAuthorize({
-  schema: 'moreone', // the callback of protocol schema
+  scheme: 'moreone', // the callback of protocol scheme
   redirectURL: 'http://more.one', // When callback failed (eg.protocol doesn't response) will redirect to URL(common like dapps' homepage)
   dappName: 'MORE.ONE', // Dapps' name
   dappIcon: 'https://static.ethte.com/more/images/icon/icon60pt.png', // Dapps' icon URL

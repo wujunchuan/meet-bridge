@@ -9,17 +9,17 @@
 
 export default class Bridge {
   /**
-   * Designated protocol schema, default `meetone://`
-   * @type {string} protocol schema
+   * Designated protocol scheme, default `meetone://`
+   * @type {string} protocol scheme
    */
-  schema: string
+  scheme: string
 
   /**
    * Creates an instance of Bridge.
    * @param {string} [protocol='meetone://']
    */
-  constructor(schema: string = 'meetone://') {
-    this.schema = schema
+  constructor(scheme: string = 'meetone://') {
+    this.scheme = scheme
   }
 
   /**
@@ -112,7 +112,7 @@ export default class Bridge {
    * @returns {string} - The protocol of uri
    */
   public generateURI({ routeName = '', params = {}, callbackId = '' }): string {
-    return this.schema
+    return this.scheme
       .concat(routeName)
       .concat('?params=')
       .concat(Bridge.coverObjectToParams(params))
@@ -122,7 +122,7 @@ export default class Bridge {
   /**
    * Request authorization - Jump to the authorization page
    *
-   * @param schema - the callback of protocol schema
+   * @param scheme - the callback of protocol scheme
    * @param redirectURL - When callback failed (eg.protocol doesn't response) will redirect to URL(common like dapps' homepage)
    * @param dappIcon - Dapps' icon URL
    * @param dappName - Dapps' name
@@ -131,7 +131,7 @@ export default class Bridge {
    * @returns {string} - The protocol of uri
    */
   public invokeAuthorize({
-    schema = null,
+    scheme = null,
     redirectURL = null,
     dappIcon = null,
     dappName = null,
@@ -144,7 +144,7 @@ export default class Bridge {
         dappIcon,
         dappName,
         loginMemo,
-        schema,
+        scheme,
         redirectURL
       } as any,
       callbackId

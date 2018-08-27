@@ -15,11 +15,11 @@ describe('init testingv', () => {
 
   it('Bridge.scheme default is `meetone://`', () => {
     expect(new Bridge()).toBeInstanceOf(Bridge)
-    expect(new Bridge().schema).toBe('meetone://')
+    expect(new Bridge().scheme).toBe('meetone://')
   })
 
-  it('可以修改schema的参数', () => {
-    expect(new Bridge('moreone://').schema).toBe('moreone://')
+  it('可以修改scheme的参数', () => {
+    expect(new Bridge('moreone://').scheme).toBe('moreone://')
   })
 })
 
@@ -86,7 +86,7 @@ describe('测试SDK', () => {
       dappIcon: null,
       dappName: null,
       loginMemo: null,
-      schema: null,
+      scheme: null,
       redirectURL: null
     })
   })
