@@ -299,4 +299,24 @@ export default class Bridge {
       callbackId
     })
   }
+
+  /**
+   *
+   * invoke application to open a webview
+   *
+   * @param title - webview title
+   * @param uri - target url which will be opened in webview
+   * @param callbackId - callback id
+   * @returns {string} - protocol uri
+   */
+  public invokeWebview({ callbackId = '', url = '', title = '' }): string {
+    return this.generateURI({
+      routeName: 'app/webview',
+      params: {
+        url,
+        title
+      } as any,
+      callbackId
+    })
+  }
 }

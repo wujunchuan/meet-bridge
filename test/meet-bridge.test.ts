@@ -171,4 +171,17 @@ describe('测试SDK', () => {
     expect(url).toEqual(expect.stringMatching('app/navigate'))
     expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
   })
+
+  it('协议打开webview', () => {
+    const config = {
+      url: 'https://meet.one',
+      title: '米特旺'
+    }
+    const url = bridge.invokeWebview(config)
+    console.log(url)
+    const urlObj = Bridge.parseURL(url)
+    const paramsObj = urlObj.params
+    expect(url).toEqual(expect.stringMatching('app/webview'))
+    expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
+  })
 })
