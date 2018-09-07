@@ -319,4 +319,21 @@ export default class Bridge {
       callbackId
     })
   }
+
+  /**
+   * invoke application to sign a signature which use current account and data
+   *
+   * @param {string} data - The data which used to create a signature
+   * @param {string} callbackId - callback id
+   * @returns {string} - string signature
+   */
+  public invokeSignature({ callbackId = '', data = '' }): string {
+    return this.generateURI({
+      routeName: 'eos/signature',
+      params: {
+        data
+      } as any,
+      callbackId
+    })
+  }
 }

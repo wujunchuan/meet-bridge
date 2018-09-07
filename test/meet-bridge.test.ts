@@ -178,10 +178,21 @@ describe('测试SDK', () => {
       title: '米特旺'
     }
     const url = bridge.invokeWebview(config)
-    console.log(url)
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('app/webview'))
+    expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
+  })
+
+  it('获取签名', () => {
+    const config = {
+      data: 'I am a signature options'
+    }
+    const url = bridge.invokeSignature(config)
+    console.log(url)
+    const urlObj = Bridge.parseURL(url)
+    const paramsObj = urlObj.params
+    expect(url).toEqual(expect.stringMatching('eos/signature'))
     expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
   })
 })
