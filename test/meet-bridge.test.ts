@@ -189,10 +189,21 @@ describe('测试SDK', () => {
       data: 'I am a signature options'
     }
     const url = bridge.invokeSignature(config)
-    console.log(url)
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('eos/signature'))
+    expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
+  })
+
+  it('获取帐号余额', () => {
+    const config = {
+      contract: 'epraofficial',
+      symbol: 'EPRA'
+    }
+    const url = bridge.invokeBalance(config)
+    const urlObj = Bridge.parseURL(url)
+    const paramsObj = urlObj.params
+    expect(url).toEqual(expect.stringMatching('eos/getBalance'))
     expect(Bridge.revertParamsToObject(paramsObj.params)).toMatchObject(config)
   })
 })

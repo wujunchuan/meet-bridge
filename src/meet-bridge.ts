@@ -325,13 +325,38 @@ export default class Bridge {
    *
    * @param {string} data - The data which used to create a signature
    * @param {string} callbackId - callback id
-   * @returns {string} - string signature
+   * @returns {string} - protocol uri
    */
   public invokeSignature({ callbackId = '', data = '' }): string {
     return this.generateURI({
       routeName: 'eos/signature',
       params: {
         data
+      } as any,
+      callbackId
+    })
+  }
+
+  /**
+   * invoke application to get token Balance
+   *
+   * @param {*} {callbackId = '', accountName = '', contract = 'eosio.token'}
+   * @param {string} accountName - the account name of want to query balance - options
+   * @param {string} contract - the token publisher smart contract name - default is 'eosio.token'
+   * @returns {string} - protocol uri
+   */
+  public invokeBalance({
+    callbackId = '',
+    accountName = '',
+    contract = 'eosio.token',
+    symbol = 'EOS'
+  }): string {
+    return this.generateURI({
+      routeName: 'eos/getBalance',
+      params: {
+        accountName,
+        contract,
+        symbol
       } as any,
       callbackId
     })
