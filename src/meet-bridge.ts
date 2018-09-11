@@ -246,21 +246,24 @@ export default class Bridge {
    *
    * ref: https://github.com/EOSIO/eosjs#transaction
    *
-   * @param actions transaction Actions
-   * @param options transaction Options
+   * @param actions - transaction Actions
+   * @param options - transaction Options
+   * @param description - the description about transaction
    * @param callbackId callbackid
    * @returns {string} - protocol uri
    */
   public invokeTransaction({
     actions = [],
     options = { broadcast: true },
-    callbackId = ''
+    callbackId = '',
+    description = ''
   }): string {
     return this.generateURI({
       routeName: 'eos/transaction',
       params: {
         actions,
-        options
+        options,
+        description
       } as any,
       callbackId
     })
@@ -343,6 +346,7 @@ export default class Bridge {
    * @param {*} {callbackId = '', accountName = '', contract = 'eosio.token'}
    * @param {string} accountName - the account name of want to query balance - options
    * @param {string} contract - the token publisher smart contract name - default is 'eosio.token'
+   * @param {string} symbol - the token symbol - default is 'EOS'
    * @returns {string} - protocol uri
    */
   public invokeBalance({

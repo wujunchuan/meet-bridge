@@ -137,12 +137,14 @@ describe('测试SDK', () => {
     ]
 
     const url = bridge.invokeTransaction({
-      actions: transactionActions
+      actions: transactionActions,
+      description: 'Hello'
     })
     const urlObj = Bridge.parseURL(url)
     const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('eos/transaction'))
     expect(Bridge.revertParamsToObject(paramsObj.params).actions).toEqual(transactionActions)
+    expect(Bridge.revertParamsToObject(paramsObj.params).description).toEqual('Hello')
   })
 
   it('获取帐号信息', () => {
