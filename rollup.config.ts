@@ -18,14 +18,14 @@ export default {
     // for the UMD styles modules
     {
       file: pkg.main,
-      name: 'Bridge',
+      name: 'MeetBridge',
       format: 'umd',
     },
 
     // // for the ECMAScript styles modules
     {
       file: pkg.module,
-      name: 'Bridge',
+      name: 'MeetBridge',
       format: 'es',
       sourcemap: true
     },
@@ -33,7 +33,7 @@ export default {
     // for the IIFE styles modules
     {
       file: pkg.iife,
-      name: 'Bridge',
+      name: 'MeetBridge',
       format: 'iife',
     },
   ],

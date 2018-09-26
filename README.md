@@ -22,7 +22,7 @@ Library will support Promise callback styles code after `2.0.0` or later.
 The following is an example of how to invoke protocol to ask for authorize.
 
 ```js
-var bridge = new Bridge(); // 1. Creates an instance of Bridge.
+var bridge = new MeetBridge(); // 1. Creates an instance of Bridge.
 
 bridge.invokeAuthorizeInWeb()
   .then(function(result) {
@@ -40,7 +40,7 @@ bridge.invokeAuthorizeInWeb()
 The following is an example of how to generate protocol uri to ask for authorize
 
 ```js
-var bridge = new Bridge(); // 1. Creates an instance of Bridge.
+var bridge = new MeetBridge(); // 1. Creates an instance of Bridge.
 
 // 2. generate autorize protocol uri
 var uri = bridge.invokeAuthorize({
