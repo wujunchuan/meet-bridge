@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-25 19:48:10
+ * @Last Modified time: 2018-09-28 21:12:14
  */
 
 export default class Bridge {
@@ -411,17 +411,61 @@ export default class Bridge {
   }
 
   /**
+   * invoke clint to return signProvider for eos.js
+   *
+   * ref: https://github.com/EOSIO/eosjs/blob/master/src/index.test.js#L327
+   *
+   */
+  public invokeSignProvider({ buf = [''], transaction = null }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
+      routeName: 'eos/sign_provider',
+      params: {
+        buf,
+        transaction
+      } as any,
+      callbackId
+    })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
+  }
+
+  /**
    * invoke application to sign a signature which use current account and data
    *
    * @param {string} data - The data which used to create a signature
+   * @param {string} whatfor - The description for the Sign request
+   * @param {boolean} isHash - Is used `ecc.Signature.signHash` to sign
+   * @param {boolean} isArbitrary - Is invoked by `scatter.getArbitrarySignature`, Default is `false`
    * @returns {string | Promise} - protocol uri
    */
-  public invokeSignature({ data = '' }): any {
+  public invokeSignature({
+    data = '', // 打算加密的内容
+    whatfor = '', // 加密请求说明
+    isHash = false,
+    isArbitrary = false
+  }): any {
     const callbackId = this._getCallbackId()
     const url = this.generateURI({
       routeName: 'eos/signature',
       params: {
-        data
+        data,
+        whatfor,
+        isHash,
+        isArbitrary
       } as any,
       callbackId
     })
