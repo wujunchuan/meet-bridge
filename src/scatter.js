@@ -5,7 +5,7 @@
  * @Author: JohnTrump
  * @Date: 2018-09-29 09:34:55
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-29 15:44:22
+ * @Last Modified time: 2018-09-30 12:53:19
  */
 
 
@@ -33,7 +33,7 @@ var scatter = {
     // https://github.com/GetScatter/ScatterWebExtension/blob/9d0f0946f8f53fe56c9a52afbeb55cc72c41f8e4/src/plugins/defaults/eos.js#L167
     return bridge.invokeSignProvider({
       buf: Array.from(signargs.buf),
-      transaction: signargs.transaction
+      transaction: signargs.transaction.actions
     }).then(function (res) {
       // 客户端的实现参考: https://github.com/EOSIO/eosjs/blob/master/src/index.test.js#L327
       if (res.code === 0) {
