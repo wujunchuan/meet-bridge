@@ -5,7 +5,7 @@
  * @Author: JohnTrump
  * @Date: 2018-09-29 09:34:55
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-30 12:53:19
+ * @Last Modified time: 2018-09-30 18:09:10
  */
 
 
@@ -131,4 +131,7 @@ var scatter = {
 
 bridge = new MeetBridge();
 
-console.log('init bridge', bridge, scatter)
+// Event Emit scatterLoaded
+document.dispatchEvent(new CustomEvent('scatterLoaded'), {});
+
+console.log('init bridge', bridge, scatter);
