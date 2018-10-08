@@ -92,11 +92,14 @@ export default class Bridge {
       this.tryTimes = 0
     } catch (error) {
       console.log('failed..', this.tryTimes)
-      if (this.tryTimes < 5) {
+      // 每1s尝试重新发起，失败次数60次之后不再发起
+      if (this.tryTimes < 60) {
         setTimeout(() => {
           this._sendRequest(url)
           this.tryTimes = ++this.tryTimes
-        }, 100)
+        }, 1000)
+      } else {
+        console.error('post url timeout(60 times):', url)
       }
     }
   }
