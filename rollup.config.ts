@@ -1,7 +1,6 @@
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
 import sourceMaps from 'rollup-plugin-sourcemaps'
-import camelCase from 'lodash.camelcase'
 import typescript from 'rollup-plugin-typescript2'
 import json from 'rollup-plugin-json'
 // uglify the dist code
@@ -9,37 +8,33 @@ import { terser } from "rollup-plugin-terser";
 import builtins from 'rollup-plugin-node-builtins';
 
 const pkg = require('./package.json')
-const libraryName = 'meet-bridge'
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default {
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: ['eosjs'],
-  input: `src/${libraryName}.ts`,
+  input: `src/meet-bridge.ts`,
   output: [
     // for the UMD styles modules
     {
       file: pkg.main,
-      name: camelCase(libraryName),
-      globals: 'eosjs',
+      name: 'MeetBridge',
       format: 'umd',
-      // sourcemap: true
     },
 
     // // for the ECMAScript styles modules
-    // {
-    //   file: pkg.module,
-    //   name: camelCase(libraryName),
-    //   format: 'es',
-    //   sourcemap: true
-    // },
+    {
+      file: pkg.module,
+      name: 'MeetBridge',
+      format: 'es',
+      sourcemap: true
+    },
 
+    // for the IIFE styles modules
     {
       file: pkg.iife,
-      name: camelCase(libraryName),
-      globals: 'Bridge',
+      name: 'MeetBridge',
       format: 'iife',
-      sourcemap: true
     },
   ],
   watch: {

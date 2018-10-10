@@ -4,10 +4,18 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-08-07 19:46:44
+ * @Last Modified time: 2018-09-28 21:12:14
  */
 
 export default class Bridge {
+  /**
+   * The Version of Bridge Library
+   * @type {string} The version of Bridge Library
+   */
+  static version: string = '2.0.0'
+
+  static V2_MIN_VERSION = '2.0.0'
+
   /**
    * Designated protocol scheme, default `meetone://`
    * @type {string} protocol scheme
@@ -15,11 +23,30 @@ export default class Bridge {
   scheme: string
 
   /**
+   * Try the `window.postMessage` failed times
+   * @type {number}
+   */
+  tryTimes: number = 0
+
+  /**
    * Creates an instance of Bridge.
    * @param {string} [protocol='meetone://']
    */
   constructor(scheme: string = 'meetone://') {
     this.scheme = scheme
+    // auto add `message` EventListener
+    window.document.addEventListener('message', e => {
+      try {
+        // @ts-ignore
+        const { params, callbackId } = JSON.parse(e.data)
+        const resultJSON = decodeURIComponent(atob(params))
+        const result = JSON.parse(resultJSON)
+        if (callbackId) {
+          // @ts-ignore
+          window[callbackId](result)
+        }
+      } catch (error) {}
+    })
   }
 
   /**
@@ -40,6 +67,44 @@ export default class Bridge {
   }
 
   /**
+   * Generate random series callback ID
+   * for realize the callback function
+   * @private
+   * @returns {string}
+   */
+  private _getCallbackId(): string {
+    const random = parseInt(Math.random() * 10000 + '')
+    return 'meet_callback_' + new Date().getTime() + random
+  }
+
+  /**
+   * PostMessage to Client for invoke schema
+   *
+   * @private
+   * @param {string} url
+   * @memberof Bridge
+   */
+  private _sendRequest(url: string): void {
+    try {
+      // console.log('post url', url)
+      // @ts-ignore
+      window.postMessage(url)
+      this.tryTimes = 0
+    } catch (error) {
+      // console.log('failed..', this.tryTimes)
+      // 每1s尝试重新发起，失败次数60次之后不再发起
+      if (this.tryTimes < 60) {
+        setTimeout(() => {
+          this._sendRequest(url)
+          this.tryTimes = ++this.tryTimes
+        }, 1000)
+      } else {
+        console.error('post url timeout(60 times):', url)
+      }
+    }
+  }
+
+  /**
    * Parse params String to Javascript Object
    *
    * Detailed conversion process: atob() -> decodeURIComponent() -> JSON.parse()
@@ -57,44 +122,6 @@ export default class Bridge {
       console.error(error)
     }
     return {}
-  }
-
-  /**
-   * Parse URL String to Object
-   * @static
-   * @param {string} url - URL
-   * @returns {object} - URL Object
-   */
-  public static parseURL(url: string): object {
-    let a = document.createElement('a')
-    a.href = url
-    return {
-      source: url,
-      protocol: a.protocol.replace(':', ''),
-      host: a.hostname,
-      port: a.port,
-      query: a.search,
-      params: (function() {
-        let ret = {} as any,
-          seg = a.search.replace(/^\?/, '').split('&'),
-          len = seg.length,
-          i = 0,
-          s
-        for (; i < len; i++) {
-          if (!seg[i]) {
-            continue
-          }
-          s = seg[i].split('=')
-          ret[s[0]] = s[1]
-        }
-        return ret
-      })(),
-      file: (a.pathname.match(/\/([^\/?#]+)$/i) || [, ''])[1],
-      hash: a.hash.replace('#', ''),
-      path: a.pathname.replace(/^([^\/])/, '/$1'),
-      relative: (a.href.match(/tps?:\/\/[^\/]+(.+)/) || [, ''])[1],
-      segments: a.pathname.replace(/^\//, '').split('/')
-    }
   }
 
   /**
@@ -120,6 +147,7 @@ export default class Bridge {
   }
 
   /**
+   * TODO: 客户端需要进一步支持Promise写法
    * Request authorization - Jump to the authorization page
    *
    * @param scheme - the callback of protocol scheme
@@ -127,18 +155,17 @@ export default class Bridge {
    * @param dappIcon - Dapps' icon URL
    * @param dappName - Dapps' name
    * @param loginMemo - Dapps' Authorization description
-   * @param callbackId - callback id
-   * @returns {string} - The protocol of uri
+   * @returns {string | Promise} - The protocol of uri
    */
   public invokeAuthorize({
     scheme = null,
     redirectURL = null,
     dappIcon = null,
     dappName = null,
-    loginMemo = null,
-    callbackId = ''
-  }): string {
-    return this.generateURI({
+    loginMemo = null
+  }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/authorize',
       params: {
         dappIcon,
@@ -149,56 +176,50 @@ export default class Bridge {
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
    * Request authorization - return authorization information directly
    *
-   * @param callbackId - callback id
-   * @returns {string} - The protocol of uri
+   * @returns {string | Promise} - The protocol of uri
    */
-  public invokeAuthorizeInWeb({ callbackId = '' }): string {
-    return this.generateURI({
+  public invokeAuthorizeInWeb(): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/authorizeInWeb',
       params: {},
       callbackId
     })
-  }
-
-  /**
-   *
-   * Open The Transfer Page
-   *
-   * @param to 转账给谁
-   * @param amount 转账金额
-   * @param tokenName 代币符号
-   * @param tokenContract 代币合约地址
-   * @param tokenPrecision 代币精度
-   * @param memo 转账备注
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
-   */
-  public invokeTransferPage({
-    to = '',
-    amount = 0,
-    tokenName = 'EOS',
-    tokenContract = 'eosio.token',
-    tokenPrecision = 4,
-    memo = '',
-    callbackId = ''
-  }): string {
-    return this.generateURI({
-      routeName: 'eos/transfer_page',
-      params: {
-        to,
-        amount,
-        tokenName,
-        tokenContract,
-        tokenPrecision,
-        memo
-      } as any,
-      callbackId
-    })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
@@ -212,8 +233,7 @@ export default class Bridge {
    * @param tokenPrecision 代币精度
    * @param memo 转账备注
    * @param orderInfo 订单信息
-   * @param callbackId 回调id (选填)
-   * @returns {string} - 协议的URI地址
+   * @returns {string | Promise} - 协议的URI地址
    */
   public invokeTransfer({
     to = '',
@@ -222,10 +242,10 @@ export default class Bridge {
     tokenContract = 'eosio.token',
     tokenPrecision = 4,
     memo = '',
-    orderInfo = '',
-    callbackId = ''
-  }): string {
-    return this.generateURI({
+    orderInfo = ''
+  }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/transfer',
       params: {
         to,
@@ -238,6 +258,21 @@ export default class Bridge {
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
@@ -249,16 +284,11 @@ export default class Bridge {
    * @param actions - transaction Actions
    * @param options - transaction Options
    * @param description - the description about transaction
-   * @param callbackId callbackid
-   * @returns {string} - protocol uri
+   * @returns {string | Promise} - protocol uri
    */
-  public invokeTransaction({
-    actions = [],
-    options = { broadcast: true },
-    callbackId = '',
-    description = ''
-  }): string {
-    return this.generateURI({
+  public invokeTransaction({ actions = [], options = { broadcast: true }, description = '' }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/transaction',
       params: {
         actions,
@@ -267,20 +297,50 @@ export default class Bridge {
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
    * Get account information
    *
-   * @param callbackId callbackid
-   * @returns {string} - protocol uri
+   * @returns {string | Promise} - protocol uri
    */
-  public invokeAccountInfo({ callbackId = '' }): string {
-    return this.generateURI({
+  public invokeAccountInfo({}): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/account_info',
       params: {},
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
@@ -289,11 +349,11 @@ export default class Bridge {
    *
    * @param target - Navigate to route name, eg 'EOSAuthorationPage'
    * @param options - Parameters that need to passed to the route component
-   * @param callbackId callback id
-   * @returns {string} - protocol uri
+   * @returns {string | Promise} - protocol uri
    */
-  public invokeNavigate({ callbackId = '', target = '', options = {} }): string {
-    return this.generateURI({
+  public invokeNavigate({ target = '', options = {} }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'app/navigate',
       params: {
         target,
@@ -301,6 +361,21 @@ export default class Bridge {
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
@@ -309,11 +384,11 @@ export default class Bridge {
    *
    * @param title - webview title
    * @param uri - target url which will be opened in webview
-   * @param callbackId - callback id
-   * @returns {string} - protocol uri
+   * @returns {string | Promise} - protocol uri
    */
-  public invokeWebview({ callbackId = '', url = '', title = '' }): string {
-    return this.generateURI({
+  public invokeWebview({ url = '', title = '' }): any {
+    const callbackId = this._getCallbackId()
+    const myUrl = this.generateURI({
       routeName: 'app/webview',
       params: {
         url,
@@ -321,41 +396,110 @@ export default class Bridge {
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(myUrl)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return myUrl
+    }
+  }
+
+  /**
+   * invoke clint to return signProvider for eos.js
+   *
+   * ref: https://github.com/EOSIO/eosjs/blob/master/src/index.test.js#L327
+   *
+   */
+  public invokeSignProvider({ buf = [''], transaction = null }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
+      routeName: 'eos/sign_provider',
+      params: {
+        buf,
+        transaction
+      } as any,
+      callbackId
+    })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
    * invoke application to sign a signature which use current account and data
    *
    * @param {string} data - The data which used to create a signature
-   * @param {string} callbackId - callback id
-   * @returns {string} - protocol uri
+   * @param {string} whatfor - The description for the Sign request
+   * @param {boolean} isHash - Is used `ecc.Signature.signHash` to sign
+   * @param {boolean} isArbitrary - Is invoked by `scatter.getArbitrarySignature`, Default is `false`
+   * @returns {string | Promise} - protocol uri
    */
-  public invokeSignature({ callbackId = '', data = '' }): string {
-    return this.generateURI({
+  public invokeSignature({
+    data = '', // 打算加密的内容
+    whatfor = '', // 加密请求说明
+    isHash = false,
+    isArbitrary = false
+  }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/signature',
       params: {
-        data
+        data,
+        whatfor,
+        isHash,
+        isArbitrary
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 
   /**
    * invoke application to get token Balance
    *
-   * @param {*} {callbackId = '', accountName = '', contract = 'eosio.token'}
    * @param {string} accountName - the account name of want to query balance - options
    * @param {string} contract - the token publisher smart contract name - default is 'eosio.token'
    * @param {string} symbol - the token symbol - default is 'EOS'
    * @returns {string} - protocol uri
    */
-  public invokeBalance({
-    callbackId = '',
-    accountName = '',
-    contract = 'eosio.token',
-    symbol = 'EOS'
-  }): string {
-    return this.generateURI({
+  public invokeBalance({ accountName = '', contract = 'eosio.token', symbol = 'EOS' }): any {
+    const callbackId = this._getCallbackId()
+    const url = this.generateURI({
       routeName: 'eos/getBalance',
       params: {
         accountName,
@@ -364,5 +508,20 @@ export default class Bridge {
       } as any,
       callbackId
     })
+    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+      this._sendRequest(url)
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        window[callbackId] = function(result) {
+          try {
+            resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+      })
+    } else {
+      return url
+    }
   }
 }
