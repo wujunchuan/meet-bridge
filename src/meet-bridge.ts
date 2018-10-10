@@ -86,12 +86,12 @@ export default class Bridge {
    */
   private _sendRequest(url: string): void {
     try {
-      console.log('post url', url)
+      // console.log('post url', url)
       // @ts-ignore
       window.postMessage(url)
       this.tryTimes = 0
     } catch (error) {
-      console.log('failed..', this.tryTimes)
+      // console.log('failed..', this.tryTimes)
       // 每1s尝试重新发起，失败次数60次之后不再发起
       if (this.tryTimes < 60) {
         setTimeout(() => {
