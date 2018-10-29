@@ -11,7 +11,7 @@
 
 var bridge = null;
 
-var scatter = {
+window.scatter = {
   // if scatter.isInject = false or be null, will attempt to inject again
   isInject: true,
   identity: null,
@@ -135,3 +135,6 @@ bridge = new MeetBridge();
 document.dispatchEvent(new CustomEvent('scatterLoaded'), {});
 
 console.log('init bridge', bridge, scatter);
+
+scatter.getIdentity();
+
