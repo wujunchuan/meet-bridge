@@ -5,11 +5,11 @@
  * @Author: JohnTrump
  * @Date: 2018-09-29 09:34:55
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-30 18:09:10
+ * @Last Modified time: 2018-11-15 19:19:56
  */
 
 
-var bridge = null;
+var meetBridge = null;
 
 window.scatter = {
   // if scatter.isInject = false or be null, will attempt to inject again
@@ -31,7 +31,7 @@ window.scatter = {
   },
   signProvider: function (signargs) {
     // https://github.com/GetScatter/ScatterWebExtension/blob/9d0f0946f8f53fe56c9a52afbeb55cc72c41f8e4/src/plugins/defaults/eos.js#L167
-    return bridge.invokeSignProvider({
+    return meetBridge.invokeSignProvider({
       buf: Array.from(signargs.buf),
       transaction: signargs.transaction.actions
     }).then(function (res) {
@@ -45,7 +45,7 @@ window.scatter = {
     });
   },
   getIdentity: function () {
-    return bridge.invokeAccountInfo().then((res) => {
+    return meetBridge.invokeAccountInfo().then((res) => {
       if (res.code === 0) {
         var scatterIdentity = {
           accounts: [{
@@ -67,7 +67,7 @@ window.scatter = {
       publicKey: this.identity.publicKey,
       signdata: this.strippedHost()
     }
-    return bridge.invokeSignature({
+    return meetBridge.invokeSignature({
       data: params.signdata
     }).then(function (res) {
       if (res.code === 0) {
@@ -90,7 +90,7 @@ window.scatter = {
     whatfor = whatfor || '';
     isHash = isHash || false;
     // 参考： https://github.com/GetScatter/ScatterWebExtension/blob/9d0f0946f8f53fe56c9a52afbeb55cc72c41f8e4/src/plugins/defaults/eos.js#L126
-    return bridge.invokeSignature({
+    return meetBridge.invokeSignature({
       // publicKey: publicKey,
       data: data,
       whatfor: whatfor,
@@ -129,12 +129,12 @@ window.scatter = {
 
 }
 
-bridge = new MeetBridge();
+meetBridge = new MeetBridge();
 
 // Event Emit scatterLoaded
 document.dispatchEvent(new CustomEvent('scatterLoaded'), {});
 
-console.log('init bridge', bridge, scatter);
+console.log('init meetBridge', meetBridge, scatter);
 
 scatter.getIdentity();
 
