@@ -3,7 +3,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:25:08
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-25 17:40:30
+ * @Last Modified time: 2018-11-30 10:52:08
  */
 
 import Bridge from '../src/meet-bridge'
@@ -95,12 +95,29 @@ describe('测试编码与对象之间的转换', () => {
 
 describe('生成协议URI地址', () => {
   const bridge = new Bridge()
+
   const url = bridge.generateURI({
     routeName: 'eos/account_info',
     params: {}
   })
-  it('生成协议URI地址', () => {
+
+  it('生成协议URI地址(无callbackId)', () => {
+    const urlObj = parseURL(url)
+    const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('eos/account_info'))
+    expect(paramsObj.callbackId).toBeUndefined()
+  })
+
+  const url_with_callback = bridge.generateURI({
+    routeName: 'eos/account_info',
+    params: {},
+    callbackId: 'meetone_callback_123'
+  })
+
+  it('生成协议URI地址(带上callbackid)', () => {
+    const urlObj = parseURL(url_with_callback)
+    const paramsObj = urlObj.params
+    expect(paramsObj.callbackId).toEqual('meetone_callback_123')
   })
 })
 

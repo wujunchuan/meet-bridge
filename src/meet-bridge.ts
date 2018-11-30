@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-28 21:12:14
+ * @Last Modified time: 2018-11-30 10:51:55
  */
 
 export default class Bridge {
@@ -12,7 +12,7 @@ export default class Bridge {
    * The Version of Bridge Library
    * @type {string} The version of Bridge Library
    */
-  static version: string = '2.0.0'
+  static version: string = '2.0.1'
 
   static V2_MIN_VERSION = '2.0.0'
 
@@ -139,11 +139,16 @@ export default class Bridge {
    * @returns {string} - The protocol of uri
    */
   public generateURI({ routeName = '', params = {}, callbackId = '' }): string {
-    return this.scheme
+    let targetURL = ''
+    targetURL = this.scheme
       .concat(routeName)
       .concat('?params=')
       .concat(Bridge.coverObjectToParams(params))
-      .concat('&callbackId=' + callbackId)
+    // 如果有指定回调
+    if (callbackId) {
+      targetURL = targetURL.concat('&callbackId=' + callbackId)
+    }
+    return targetURL
   }
 
   /**
