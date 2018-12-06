@@ -4,16 +4,10 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-12-06 15:06:02
+ * @Last Modified time: 2018-12-06 20:03:43
  */
 
 export default class Bridge {
-  /**
-   * The Version of Bridge Library
-   * @type {string} The version of Bridge Library
-   */
-  static version: string = '2.0.1'
-
   static V2_MIN_VERSION = '2.0.0'
 
   /**
@@ -21,6 +15,12 @@ export default class Bridge {
    * @type {string} protocol scheme
    */
   scheme: string
+
+  /**
+   * The Version of Bridge Library
+   * @type {string} version number
+   */
+  version: string
 
   /**
    * Try the `window.postMessage` failed times
@@ -31,9 +31,11 @@ export default class Bridge {
   /**
    * Creates an instance of Bridge.
    * @param {string} [protocol='meetone://']
+   * @param {string} The version of Bridge Library
    */
-  constructor(scheme: string = 'meetone://') {
+  constructor(scheme: string = 'meetone://', version = '2.0.2') {
     this.scheme = scheme
+    this.version = version
     // auto add `message` EventListener
     window.document.addEventListener('message', e => {
       try {
@@ -41,6 +43,7 @@ export default class Bridge {
         const { params, callbackId } = JSON.parse(e.data)
         const resultJSON = decodeURIComponent(atob(params))
         const result = JSON.parse(resultJSON)
+        console.log(callbackId, result)
         if (callbackId) {
           // @ts-ignore
           window[callbackId](result)
@@ -104,11 +107,16 @@ export default class Bridge {
     }
   }
 
+  /**
+   * Generate Promise with callbackId
+   * @param {Object} obj - {routeName: String, params: Object}
+   * @returns {Promise | String}
+   */
   public customGenerate(obj: Object): any {
     const callbackId = this._getCallbackId()
-    obj = Object.assign(obj, callbackId)
+    obj = Object.assign(obj, { callbackId })
     const url = this.generateURI(obj)
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (this.version >= Bridge.V2_MIN_VERSION) {
       this._sendRequest(url)
       return new Promise((resolve, reject) => {
         // @ts-ignore
@@ -173,7 +181,78 @@ export default class Bridge {
   }
 
   /**
-   * TODO: 客户端需要进一步支持Promise写法
+   * Get EOS wallet current network
+   * include chain_id and domians[]
+   */
+  public invokeGetNetwork(): any {
+    return this.customGenerate({
+      routeName: 'eos/network'
+    })
+  }
+
+  /**
+   *
+   * 调用分享
+   * @param {*} {
+   *     shareType = 1,
+   *     title = '',
+   *     description = '',
+   *     imgUrl = '',
+   *     options = {}
+   *   }
+   */
+  public invokeShare({
+    shareType = 1,
+    title = '',
+    description = '',
+    imgUrl = '',
+    options = {}
+  }): any {
+    return this.customGenerate({
+      routeName: 'app/share',
+      params: {
+        shareType,
+        imgUrl,
+        title,
+        description,
+        options
+      }
+    })
+  }
+
+  /**
+   * 生成分享口令
+   * @param {*} {
+   *     description = '',
+   *     name = '',
+   *     target = '',
+   *     banner = '',
+   *     icon = ''
+   *   }
+   */
+  public invokeShareCode({
+    description = '',
+    name = '',
+    target = '',
+    banner = '',
+    icon = ''
+  }): any {
+    return this.customGenerate({
+      routeName: 'app/share',
+      params: {
+        shareType: 5,
+        description,
+        options: {
+          name,
+          target,
+          banner,
+          icon
+        }
+      }
+    })
+  }
+
+  /**
    * Request authorization - Jump to the authorization page
    *
    * @param scheme - the callback of protocol scheme
@@ -209,8 +288,7 @@ export default class Bridge {
    */
   public invokeAuthorizeInWeb(): any {
     return this.customGenerate({
-      routeName: 'eos/authorizeInWeb',
-      params: {}
+      routeName: 'eos/authorizeInWeb'
     })
   }
 
@@ -279,8 +357,7 @@ export default class Bridge {
    */
   public invokeAccountInfo({}): any {
     return this.customGenerate({
-      routeName: 'eos/account_info',
-      params: {}
+      routeName: 'eos/account_info'
     })
   }
 
