@@ -3,7 +3,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:25:08
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-09-25 17:40:30
+ * @Last Modified time: 2018-12-07 10:06:59
  */
 
 import Bridge from '../src/meet-bridge'
@@ -49,11 +49,11 @@ const parseURL = function(url) {
 }
 
 describe('版本号对比', () => {
-  const majorVersion = Bridge.version.split('.')[0]
+  const majorVersion = new Bridge().version
   if (parseInt(majorVersion) >= 2) {
     it('版本号高于2.0', () => {
-      expect(Bridge.version >= MIN_VERSION).toBeTruthy()
-      expect(Bridge.version < MAX_VERSION).toBeTruthy()
+      expect(majorVersion >= MIN_VERSION).toBeTruthy()
+      expect(majorVersion < MAX_VERSION).toBeTruthy()
     })
   }
 })
@@ -95,12 +95,29 @@ describe('测试编码与对象之间的转换', () => {
 
 describe('生成协议URI地址', () => {
   const bridge = new Bridge()
+
   const url = bridge.generateURI({
     routeName: 'eos/account_info',
     params: {}
   })
-  it('生成协议URI地址', () => {
+
+  it('生成协议URI地址(无callbackId)', () => {
+    const urlObj = parseURL(url)
+    const paramsObj = urlObj.params
     expect(url).toEqual(expect.stringMatching('eos/account_info'))
+    expect(paramsObj.callbackId).toBeUndefined()
+  })
+
+  const url_with_callback = bridge.generateURI({
+    routeName: 'eos/account_info',
+    params: {},
+    callbackId: 'meetone_callback_123'
+  })
+
+  it('生成协议URI地址(带上callbackid)', () => {
+    const urlObj = parseURL(url_with_callback)
+    const paramsObj = urlObj.params
+    expect(paramsObj.callbackId).toEqual('meetone_callback_123')
   })
 })
 
@@ -126,12 +143,13 @@ describe('测试ParseURL', () => {
 
 describe('测试SDK', () => {
   const bridge = new Bridge()
+  const version = bridge.version
 
   it('请求获取授权(跳转到授权页面)', () => {
-    const url = bridge.invokeAuthorize({ callbackId: '100' })
+    const url = bridge.invokeAuthorize({})
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/authorize'))
@@ -146,10 +164,10 @@ describe('测试SDK', () => {
   })
 
   it('请求获取授权(直接返回授权信息)', () => {
-    const url = bridge.invokeAuthorizeInWeb({})
+    const url = bridge.invokeAuthorizeInWeb()
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/authorizeInWeb'))
@@ -170,7 +188,7 @@ describe('测试SDK', () => {
     const url = bridge.invokeTransfer(Object.assign({}, transferConfig, { callbackId: '100' }))
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/transfer'))
@@ -204,7 +222,7 @@ describe('测试SDK', () => {
     })
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/transaction'))
@@ -215,7 +233,7 @@ describe('测试SDK', () => {
 
   it('获取帐号信息', () => {
     const url = bridge.invokeAccountInfo({})
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/account_info'))
@@ -229,7 +247,7 @@ describe('测试SDK', () => {
     const url = bridge.invokeNavigate(config)
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('app/navigate'))
@@ -245,7 +263,7 @@ describe('测试SDK', () => {
     const url = bridge.invokeWebview(config)
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('app/webview'))
@@ -260,7 +278,7 @@ describe('测试SDK', () => {
     const url = bridge.invokeSignature(config)
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/signature'))
@@ -276,7 +294,7 @@ describe('测试SDK', () => {
     const url = bridge.invokeBalance(config)
     const urlObj = parseURL(url)
     const paramsObj = urlObj.params
-    if (Bridge.version >= Bridge.V2_MIN_VERSION) {
+    if (version >= Bridge.V2_MIN_VERSION) {
       expect(url).toBeInstanceOf(Promise)
     } else {
       expect(url).toEqual(expect.stringMatching('eos/getBalance'))
