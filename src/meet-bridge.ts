@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-12-06 20:03:43
+ * @Last Modified time: 2018-12-07 10:38:09
  */
 
 export default class Bridge {
@@ -12,24 +12,28 @@ export default class Bridge {
 
   /**
    * Designated protocol scheme, default `meetone://`
-   * @type {string} protocol scheme
+   * @type {string}
    */
   scheme: string
 
   /**
    * The Version of Bridge Library
-   * @type {string} version number
+   * @type {string}
    */
   version: string
 
   /**
    * Try the `window.postMessage` failed times
+   *
+   * Over 60 times will throw error ('post url timeout')
+   *
    * @type {number}
    */
   tryTimes: number = 0
 
   /**
    * Creates an instance of Bridge.
+   *
    * @param {string} [protocol='meetone://']
    * @param {string} The version of Bridge Library
    */
@@ -54,7 +58,11 @@ export default class Bridge {
 
   /**
    * Parse Javascript Object to params String
-   * Detailed conversion process: JSON.stringify() -> encodeURIComponent() -> btoa()
+   *
+   * Detailed conversion process:
+   *
+   * JSON.stringify() -> encodeURIComponent() -> btoa()
+   *
    * @static
    * @param {object} obj - target Javascript Object
    * @returns {string} - params String
@@ -71,9 +79,11 @@ export default class Bridge {
 
   /**
    * Generate random series callback ID
-   * for realize the callback function
+   *
+   * For realize the callback function
+   *
    * @private
-   * @returns {string}
+   * @returns {string} - `meet_callback_[id]`
    */
   private _getCallbackId(): string {
     const random = parseInt(Math.random() * 10000 + '')
@@ -85,7 +95,6 @@ export default class Bridge {
    *
    * @private
    * @param {string} url
-   * @memberof Bridge
    */
   private _sendRequest(url: string): void {
     try {
@@ -109,7 +118,14 @@ export default class Bridge {
 
   /**
    * Generate Promise with callbackId
-   * @param {Object} obj - {routeName: String, params: Object}
+   *
+   * If `bridge.version < 2.0.0` will return String
+   *
+   * @param {Object} obj
+   *  - {
+   *    routeName: String,
+   *    params: Object
+   * }
    * @returns {Promise | String}
    */
   public customGenerate(obj: Object): any {
@@ -191,15 +207,13 @@ export default class Bridge {
   }
 
   /**
+   * 触发客户端分享
    *
-   * 调用分享
-   * @param {*} {
-   *     shareType = 1,
-   *     title = '',
-   *     description = '',
-   *     imgUrl = '',
-   *     options = {}
-   *   }
+   * @param shareType - 分享类型: `1 文本；2 图片；3 web link；4 文件; 5 口令`
+   * @param imgUrl - 分享的图片[可选]
+   * @param title - 分享标题
+   * @param description - 分享内容
+   * @param options - 附带的参数（`shareType = 5`时需要）
    */
   public invokeShare({
     shareType = 1,
@@ -222,13 +236,14 @@ export default class Bridge {
 
   /**
    * 生成分享口令
-   * @param {*} {
-   *     description = '',
-   *     name = '',
-   *     target = '',
-   *     banner = '',
-   *     icon = ''
-   *   }
+   *
+   * 生成的口令会自动被复制，打卡App后会弹出分享的内容
+   *
+   * @param description - 口令分享弹窗描述
+   * @param name - Dapps的名称
+   * @param target - 口令分享跳转的url
+   * @param banner - 弹窗的banner图片
+   * @param icon - 弹窗Dapp图标
    */
   public invokeShareCode({
     description = '',
@@ -260,7 +275,6 @@ export default class Bridge {
    * @param dappIcon - Dapps' icon URL
    * @param dappName - Dapps' name
    * @param loginMemo - Dapps' Authorization description
-   * @returns {string | Promise} - The protocol of uri
    */
   public invokeAuthorize({
     scheme = null,
@@ -283,8 +297,6 @@ export default class Bridge {
 
   /**
    * Request authorization - return authorization information directly
-   *
-   * @returns {string | Promise} - The protocol of uri
    */
   public invokeAuthorizeInWeb(): any {
     return this.customGenerate({
@@ -303,7 +315,6 @@ export default class Bridge {
    * @param tokenPrecision 代币精度
    * @param memo 转账备注
    * @param orderInfo 订单信息
-   * @returns {string | Promise} - 协议的URI地址
    */
   public invokeTransfer({
     to = '',
@@ -337,7 +348,6 @@ export default class Bridge {
    * @param actions - transaction Actions
    * @param options - transaction Options
    * @param description - the description about transaction
-   * @returns {string | Promise} - protocol uri
    */
   public invokeTransaction({ actions = [], options = { broadcast: true }, description = '' }): any {
     return this.customGenerate({
@@ -352,10 +362,8 @@ export default class Bridge {
 
   /**
    * Get account information
-   *
-   * @returns {string | Promise} - protocol uri
    */
-  public invokeAccountInfo({}): any {
+  public invokeAccountInfo(): any {
     return this.customGenerate({
       routeName: 'eos/account_info'
     })
@@ -367,7 +375,6 @@ export default class Bridge {
    *
    * @param target - Navigate to route name, eg 'EOSAuthorationPage'
    * @param options - Parameters that need to passed to the route component
-   * @returns {string | Promise} - protocol uri
    */
   public invokeNavigate({ target = '', options = {} }): any {
     return this.customGenerate({
@@ -385,7 +392,6 @@ export default class Bridge {
    *
    * @param title - webview title
    * @param uri - target url which will be opened in webview
-   * @returns {string | Promise} - protocol uri
    */
   public invokeWebview({ url = '', title = '' }): any {
     return this.customGenerate({
@@ -420,7 +426,6 @@ export default class Bridge {
    * @param {string} whatfor - The description for the Sign request
    * @param {boolean} isHash - Is used `ecc.Signature.signHash` to sign
    * @param {boolean} isArbitrary - Is invoked by `scatter.getArbitrarySignature`, Default is `false`
-   * @returns {string | Promise} - protocol uri
    */
   public invokeSignature({
     data = '', // 打算加密的内容
@@ -445,7 +450,6 @@ export default class Bridge {
    * @param {string} accountName - the account name of want to query balance - options
    * @param {string} contract - the token publisher smart contract name - default is 'eosio.token'
    * @param {string} symbol - the token symbol - default is 'EOS'
-   * @returns {string} - protocol uri
    */
   public invokeBalance({ accountName = '', contract = 'eosio.token', symbol = 'EOS' }): any {
     return this.customGenerate({
