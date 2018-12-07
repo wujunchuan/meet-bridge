@@ -1,6 +1,6 @@
 {
   "name": "meet-bridge",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "The Bridge for MEET.ONE Client",
   "keywords": [],
   "main": "dist/meet-bridge.umd.js",
