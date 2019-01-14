@@ -47,9 +47,13 @@ window.scatter = {
   getIdentity: function () {
     return meetBridge.invokeAccountInfo().then((res) => {
       if (res.code === 0) {
+        let authority = 'active';
+        if (res.data.isOwner) {
+          authority = 'owner';
+        }
         var scatterIdentity = {
           accounts: [{
-            authority: "active",
+            authority: authority,
             blockchain: "eos",
             name: res.data.account
           }],
