@@ -5,7 +5,7 @@
  * @Author: JohnTrump
  * @Date: 2018-09-29 09:34:55
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-11-15 19:19:56
+ * @Last Modified time: 2019-02-20 10:05:32
  */
 
 
@@ -13,6 +13,7 @@ var meetBridge = null;
 
 window.scatter = {
   // if scatter.isInject = false or be null, will attempt to inject again
+  isExtension: true, // 强行将此字段设置为true, 避免部分机型初始化错误（isConnected failed)
   isInject: true,
   identity: null,
   requireVersion: '',
