@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-12-07 10:38:09
+ * @Last Modified time: 2019-06-12 19:57:50
  */
 
 export default class Bridge {
@@ -40,20 +40,24 @@ export default class Bridge {
   constructor(scheme: string = 'meetone://', version = '2.0.2') {
     this.scheme = scheme
     this.version = version
-    // auto add `message` EventListener
-    window.document.addEventListener('message', e => {
-      try {
-        // @ts-ignore
-        const { params, callbackId } = JSON.parse(e.data)
-        const resultJSON = decodeURIComponent(atob(params))
-        const result = JSON.parse(resultJSON)
-        console.log(callbackId, result)
-        if (callbackId) {
+    // 判断`addMessageHandleFlag`是否为1[避免重复监听相同事件]
+    if (window.document.body.getAttribute('addMessageHandleFlag') !== '1') {
+      window.document.body.setAttribute('addMessageHandleFlag', '1')
+      // auto add `message` EventListener
+      window.document.addEventListener('message', e => {
+        try {
           // @ts-ignore
-          window[callbackId](result)
-        }
-      } catch (error) {}
-    })
+          const { params, callbackId } = JSON.parse(e.data)
+          const resultJSON = decodeURIComponent(atob(params))
+          const result = JSON.parse(resultJSON)
+          console.log(callbackId, result)
+          if (callbackId) {
+            // @ts-ignore
+            window[callbackId](result)
+          }
+        } catch (error) {}
+      })
+    }
   }
 
   /**
@@ -118,6 +122,7 @@ export default class Bridge {
 
   /**
    * Generate Promise with callbackId
+   * Callback is once!
    *
    * If `bridge.version < 2.0.0` will return String
    *
@@ -141,6 +146,9 @@ export default class Bridge {
             resolve(result)
           } catch (error) {
             reject(error)
+          } finally {
+            // @ts-ignore
+            window[callbackId] = null
           }
         }
       })
