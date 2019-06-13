@@ -119,6 +119,24 @@ describe('生成协议URI地址', () => {
     const paramsObj = urlObj.params
     expect(paramsObj.callbackId).toEqual('meetone_callback_123')
   })
+
+  it('生成可供多次回调的协议', () => {
+    const url_with_times_callback = bridge.timesGenerate(
+      {
+        routeName: 'app/webview/right_menu',
+        params: {
+          right: '测试菜单'
+        }
+      },
+      'meet_callback_times_test',
+      () => {
+        console.log('do meet_callback_times_test')
+      }
+    )
+    const urlObj = parseURL(url_with_times_callback)
+    const paramsObj = urlObj.params
+    expect(paramsObj.callbackId).toEqual('meet_callback_times_test')
+  })
 })
 
 describe('测试ParseURL', () => {

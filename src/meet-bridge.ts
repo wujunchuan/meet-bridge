@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2018-12-07 10:38:09
+ * @Last Modified time: 2019-06-12 19:57:50
  */
 
 export default class Bridge {
@@ -37,23 +37,27 @@ export default class Bridge {
    * @param {string} [protocol='meetone://']
    * @param {string} The version of Bridge Library
    */
-  constructor(scheme: string = 'meetone://', version = '2.0.2') {
+  constructor(scheme: string = 'meetone://', version = '2.1.0') {
     this.scheme = scheme
     this.version = version
-    // auto add `message` EventListener
-    window.document.addEventListener('message', e => {
-      try {
-        // @ts-ignore
-        const { params, callbackId } = JSON.parse(e.data)
-        const resultJSON = decodeURIComponent(atob(params))
-        const result = JSON.parse(resultJSON)
-        console.log(callbackId, result)
-        if (callbackId) {
+    // 判断`addMessageHandleFlag`是否为1[避免重复监听相同事件]
+    if (window.document.body.getAttribute('addMessageHandleFlag') !== '1') {
+      window.document.body.setAttribute('addMessageHandleFlag', '1')
+      // auto add `message` EventListener
+      window.document.addEventListener('message', e => {
+        try {
           // @ts-ignore
-          window[callbackId](result)
-        }
-      } catch (error) {}
-    })
+          const { params, callbackId } = JSON.parse(e.data)
+          const resultJSON = decodeURIComponent(atob(params))
+          const result = JSON.parse(resultJSON)
+          console.log(callbackId, result)
+          if (callbackId) {
+            // @ts-ignore
+            window[callbackId](result)
+          }
+        } catch (error) {}
+      })
+    }
   }
 
   /**
@@ -118,6 +122,7 @@ export default class Bridge {
 
   /**
    * Generate Promise with callbackId
+   * Callback is once!
    *
    * If `bridge.version < 2.0.0` will return String
    *
@@ -141,12 +146,33 @@ export default class Bridge {
             resolve(result)
           } catch (error) {
             reject(error)
+          } finally {
+            // @ts-ignore
+            window[callbackId] = null
           }
         }
       })
     } else {
       return url
     }
+  }
+
+  /**
+   *
+   * @author JohnTrump
+   * @param {Object} obj  - target Javascript Object
+   * @param {string} callbackId - make sure callbackId unique
+   * @param {(result: object) => void} callback - callback function
+   * @returns {*}
+   * @memberof Bridge
+   */
+  public timesGenerate(obj: Object, callbackId: string, callback: () => void): any {
+    obj = Object.assign(obj, { callbackId })
+    const url = this.generateURI(obj)
+    this._sendRequest(url)
+    // @ts-ignore
+    window[callbackId] = callback
+    return url
   }
 
   /**
@@ -401,6 +427,26 @@ export default class Bridge {
         title
       }
     })
+  }
+
+  /**
+   *
+   * custom menu of webview
+   * @author JohnTrump
+   */
+  public webviewRightMenu({ title = '', callback = () => {} }): any {
+    // @ts-ignore
+    window['meet_callback_webview_right_menu'] = null
+    return this.timesGenerate(
+      {
+        routeName: 'app/webview/right_menu',
+        params: {
+          right: title
+        }
+      },
+      'meet_callback_webview_right_menu',
+      callback
+    )
   }
 
   /**
