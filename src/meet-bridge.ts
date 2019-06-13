@@ -158,6 +158,24 @@ export default class Bridge {
   }
 
   /**
+   *
+   * @author JohnTrump
+   * @param {Object} obj  - target Javascript Object
+   * @param {string} callbackId - make sure callbackId unique
+   * @param {(result: object) => void} callback - callback function
+   * @returns {*}
+   * @memberof Bridge
+   */
+  public timesGenerate(obj: Object, callbackId: string, callback: () => void): any {
+    obj = Object.assign(obj, { callbackId })
+    const url = this.generateURI(obj)
+    this._sendRequest(url)
+    // @ts-ignore
+    window[callbackId] = callback
+    return url
+  }
+
+  /**
    * Parse params String to Javascript Object
    *
    * Detailed conversion process: atob() -> decodeURIComponent() -> JSON.parse()
@@ -409,6 +427,26 @@ export default class Bridge {
         title
       }
     })
+  }
+
+  /**
+   *
+   * custom menu of webview
+   * @author JohnTrump
+   */
+  public webviewRightMenu({ title = '', callback = () => {} }): any {
+    // @ts-ignore
+    window['meet_callback_webview_right_menu'] = null
+    return this.timesGenerate(
+      {
+        routeNmae: 'app/webview/right_menu',
+        params: {
+          right: title
+        }
+      },
+      'meet_callback_webview_right_menu',
+      callback
+    )
   }
 
   /**
