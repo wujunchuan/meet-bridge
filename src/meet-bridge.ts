@@ -37,7 +37,7 @@ export default class Bridge {
    * @param {string} [protocol='meetone://']
    * @param {string} The version of Bridge Library
    */
-  constructor(scheme: string = 'meetone://', version = '2.0.2') {
+  constructor(scheme: string = 'meetone://', version = '2.1.0') {
     this.scheme = scheme
     this.version = version
     // 判断`addMessageHandleFlag`是否为1[避免重复监听相同事件]
@@ -439,7 +439,7 @@ export default class Bridge {
     window['meet_callback_webview_right_menu'] = null
     return this.timesGenerate(
       {
-        routeNmae: 'app/webview/right_menu',
+        routeName: 'app/webview/right_menu',
         params: {
           right: title
         }
