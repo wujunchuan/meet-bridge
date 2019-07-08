@@ -294,34 +294,6 @@ export default class Bridge {
   }
 
   /**
-   * Request authorization - Jump to the authorization page
-   *
-   * @param scheme - the callback of protocol scheme
-   * @param redirectURL - When callback failed (eg.protocol doesn't response) will redirect to URL(common like dapps' homepage)
-   * @param dappIcon - Dapps' icon URL
-   * @param dappName - Dapps' name
-   * @param loginMemo - Dapps' Authorization description
-   */
-  public invokeAuthorize({
-    scheme = null,
-    redirectURL = null,
-    dappIcon = null,
-    dappName = null,
-    loginMemo = null
-  }): any {
-    return this.customGenerate({
-      routeName: 'eos/authorize',
-      params: {
-        dappIcon,
-        dappName,
-        loginMemo,
-        scheme,
-        redirectURL
-      }
-    })
-  }
-
-  /**
    * Request authorization - return authorization information directly
    */
   public invokeAuthorizeInWeb(): any {
