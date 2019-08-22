@@ -11,7 +11,7 @@ The Bridge Library for Meet.ONE Client
 
 This library is used to assist to generating the protocol URI of the client, and encapsulates some common protocols and methods.
 
-[API Docs](https://meetone.gitlab.io/meet-bridge/)
+[API Docs](https://meet-common.gitlab.io/fe/meet-bridge/)
 
 [Live Demo@1.x.x](https://meet.one/test/index.html)
 
