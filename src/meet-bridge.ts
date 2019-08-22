@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2019-06-12 19:57:50
+ * @Last Modified time: 2019-08-22 17:34:21
  */
 
 export default class Bridge {
@@ -56,7 +56,7 @@ export default class Bridge {
           if (callbackId.startsWith('meetjs_callback')) {
             return
           }
-
+          // @ts-ignore
           if (callbackId && typeof window[callbackId] === 'function') {
             // @ts-ignore
             window[callbackId](result)
