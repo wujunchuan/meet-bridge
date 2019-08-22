@@ -50,8 +50,14 @@ export default class Bridge {
           const { params, callbackId } = JSON.parse(e.data)
           const resultJSON = decodeURIComponent(atob(params))
           const result = JSON.parse(resultJSON)
-          console.log(callbackId, result)
-          if (callbackId) {
+          // Will skip new Library ('meet-js-sdk') callback
+          // Notice that, we will skip the callback startwith `meetjs_callback`
+          // So don't use it if you manually define callbackid
+          if (callbackId.startsWith('meetjs_callback')) {
+            return
+          }
+
+          if (callbackId && typeof window[callbackId] === 'function') {
             // @ts-ignore
             window[callbackId](result)
           }
