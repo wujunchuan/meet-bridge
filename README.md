@@ -1,7 +1,9 @@
-# meet-bridge
+# meet-bridge(Discarded)
 
 [![npm version](https://badge.fury.io/js/meet-bridge.svg)](https://badge.fury.io/js/meet-bridge)
 [![js deliver](https://data.jsdelivr.com/v1/package/npm/meet-bridge/badge)](https://www.jsdelivr.com/package/npm/meet-bridge)
+
+This Project is discarded now, we strong recommend use [meet-js-sdk](https://www.npmjs.com/package/meet-js-sdk)
 
 ## Introduction
 
