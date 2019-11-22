@@ -5,7 +5,7 @@
  * @Author: JohnTrump
  * @Date: 2018-09-29 09:34:55
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2019-02-20 10:05:32
+ * @Last Modified time: 2019-11-22 20:41:36
  */
 
 
@@ -132,14 +132,14 @@ window.scatter = {
     }));
   }
 
-}
+// }
 
-meetBridge = new MeetBridge();
+// meetBridge = new MeetBridge();
 
-// Event Emit scatterLoaded
-document.dispatchEvent(new CustomEvent('scatterLoaded'), {});
+// // Event Emit scatterLoaded
+// document.dispatchEvent(new CustomEvent('scatterLoaded'), {});
 
-console.log('init meetBridge', meetBridge, scatter);
+// console.log('init meetBridge', meetBridge, scatter);
 
-scatter.getIdentity();
+// scatter.getIdentity();
 

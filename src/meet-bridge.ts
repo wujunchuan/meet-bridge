@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2019-08-22 17:34:21
+ * @Last Modified time: 2019-11-22 20:15:12
  */
 
 export default class Bridge {
@@ -40,30 +40,6 @@ export default class Bridge {
   constructor(scheme: string = 'meetone://', version = '2.1.0') {
     this.scheme = scheme
     this.version = version
-    // 判断`addMessageHandleFlag`是否为1[避免重复监听相同事件]
-    if (window.document.body.getAttribute('addMessageHandleFlag') !== '1') {
-      window.document.body.setAttribute('addMessageHandleFlag', '1')
-      // auto add `message` EventListener
-      window.document.addEventListener('message', e => {
-        try {
-          // @ts-ignore
-          const { params, callbackId } = JSON.parse(e.data)
-          const resultJSON = decodeURIComponent(atob(params))
-          const result = JSON.parse(resultJSON)
-          // Will skip new Library ('meet-js-sdk') callback
-          // Notice that, we will skip the callback startwith `meetjs_callback`
-          // So don't use it if you manually define callbackid
-          if (callbackId.startsWith('meetjs_callback')) {
-            return
-          }
-          // @ts-ignore
-          if (callbackId && typeof window[callbackId] === 'function') {
-            // @ts-ignore
-            window[callbackId](result)
-          }
-        } catch (error) {}
-      })
-    }
   }
 
   /**
@@ -97,7 +73,7 @@ export default class Bridge {
    */
   private _getCallbackId(): string {
     const random = parseInt(Math.random() * 10000 + '')
-    return 'meet_callback_' + new Date().getTime() + random
+    return '3_meet_callback_' + new Date().getTime() + random
   }
 
   /**
@@ -414,7 +390,7 @@ export default class Bridge {
    */
   public webviewRightMenu({ title = '', callback = () => {} }): any {
     // @ts-ignore
-    window['meet_callback_webview_right_menu'] = null
+    window['3_meet_callback_webview_right_menu'] = null
     return this.timesGenerate(
       {
         routeName: 'app/webview/right_menu',
@@ -422,7 +398,7 @@ export default class Bridge {
           right: title
         }
       },
-      'meet_callback_webview_right_menu',
+      '3_meet_callback_webview_right_menu',
       callback
     )
   }
