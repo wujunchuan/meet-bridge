@@ -4,7 +4,7 @@
  * @Author: JohnTrump
  * @Date: 2018-08-06 16:26:02
  * @Last Modified by: JohnTrump
- * @Last Modified time: 2019-11-22 20:15:12
+ * @Last Modified time: 2019-12-17 14:32:13
  */
 
 export default class Bridge {
@@ -343,9 +343,15 @@ export default class Bridge {
   /**
    * Get account information
    */
-  public invokeAccountInfo(): any {
+  public invokeAccountInfo({ chainId = '', dappName = '' } = {}): any {
     return this.customGenerate({
-      routeName: 'eos/account_info'
+      routeName: 'eos/account_info',
+      params: {
+        // Dapp所属的chainId
+        chainId,
+        // 当前Dapp名称
+        dappName
+      }
     })
   }
 
