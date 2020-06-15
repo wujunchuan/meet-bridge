@@ -37,7 +37,7 @@ export default class Bridge {
    * @param {string} [protocol='meetone://']
    * @param {string} The version of Bridge Library
    */
-  constructor(scheme: string = 'meetone://', version = '2.1.0') {
+  constructor(scheme: string = 'meetone://', version = '2.2.0') {
     this.scheme = scheme
     this.version = version
   }
